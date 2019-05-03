@@ -1,0 +1,107 @@
+package inetApp::Plant::NODE;
+#================================================================--
+# File Name    : NODE.pm
+#
+# Purpose      : Plant set-up for NODE 
+#
+# Author       : Peter Walsh, Vancouver Island University
+#
+# System       : Perl (Linux)
+#
+#=========================================================
+
+$| = 1;
+use strict;
+use warnings;
+use constant TRUE => 1;
+use constant FALSE => 0;
+use constant MAXSEL => 3 ;
+use constant DEVPOLLFREQ => 0.1;
+
+..............HUB............
+
+      # ================ PORTS =================
+
+      $name = "Dev1";
+      Inet::Table::DEV->set_type($name, 'ethernet');
+      Tosf::Table::TASK->new(
+         name => $name, 
+         periodic => TRUE, 
+         period => Tosf::Executive::TIMER->s2t(DEVPOLLFREQ),
+         run => TRUE,
+         fsm => Inet::Fsm::SocConS->new(
+            taskName => $name,
+            devName => $name,
+            handlerName => "Net",
+            port => $port0
+         )
+      );
+      Tosf::Table::TASK->reset($name);
+
+........................................
+
+   $name = "Net";
+   Tosf::Table::TASK->new(
+      name => $name,
+      periodic => FALSE,
+      run => FALSE,
+      fsm => Inet::Fsm::Net->new(
+         taskName => $name,
+      )
+   );
+   Tosf::Table::TASK->reset($name);
+
+   } elsif ($sel == 2) {
+      print("Future Work\n");
+      exit();
+   } elsif ($sel == 3) {
+      print("Future Work\n");
+      exit();
+   }
+
+
+   # ================ STREAM =================
+  
+   $name = "Dev0";
+   Inet::Table::DEV->set_type($name, 'stream');
+   Tosf::Table::TASK->new(
+      name => $name, 
+      periodic => TRUE, 
+      period => Tosf::Executive::TIMER->s2t(DEVPOLLFREQ),
+      run => TRUE,
+      fsm => Inet::Fsm::StreamCon->new(
+         taskName => $name,
+         devName => $name,
+         handlerName => "Stream",
+      )
+   );
+   Tosf::Table::TASK->reset($name);
+
+   $name = "Stream";
+   Tosf::Table::TASK->new(
+      name => $name,
+      periodic => FALSE,
+      run => FALSE,
+      fsm => inetApp::Fsm::StreamNode->new(
+         taskName => $name,
+      )
+   );
+   Tosf::Table::TASK->reset($name);
+
+   # ================ HEARTBEAT =================
+  
+   $name = "HBeat";
+   Tosf::Table::TASK->new(
+      name => $name,
+      periodic => TRUE,
+      period => Tosf::Executive::TIMER->s2t(20),
+      run => TRUE,
+      fsm => Inet::Fsm::HBeat->new(
+         taskName => $name,
+      )
+   );
+   Tosf::Table::TASK->reset($name);
+
+}
+
+1;
